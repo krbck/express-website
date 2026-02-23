@@ -12,5 +12,13 @@
   "dependencies": {
     "express": "^5.2.1",
     "pg": "^8.18.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krbck/express-website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/krbck/express-website/issues"
+  },
+  "homepage": "https://github.com/krbck/express-website#readme"
 }
