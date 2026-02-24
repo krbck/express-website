@@ -28,10 +28,13 @@ app.get("/", async (req, res) => {
   `);
 });
 
-app.post("/send", async (req, res) => {
+app.post("/messages", async (req, res) => {
   const { message } = req.body;
-  await pool.query("INSERT INTO messages(message) VALUES($1)", [message]);
-  res.redirect("/");
+  await pool.query(
+    "INSERT INTO messages(message) VALUES($1)",
+    [message]
+  );
+  res.sendStatus(200);
 });
 
 app.listen(3000, () => {
