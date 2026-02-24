@@ -25,7 +25,7 @@ async function checkDB() {
 
     const tableRes = await client.query(`
       SELECT table_schema, table_name 
-      FROM information_schema.tables *
+      FROM information_schema.tables 
     `);
     console.log("Tables in schema:", tableRes.rows.map(r => r.table_name));
 
