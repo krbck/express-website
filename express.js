@@ -2,7 +2,7 @@ const express = require("express");
 const { Pool } = require("pg");
 
 const app = express();
-app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -12,19 +12,26 @@ const pool = new Pool({
   port: 5432,
 });
 
-app.post("/messages", async (req, res) => {
-  const { content } = req.body;
+app.get("/", async (req, res) => {
+  const result = await pool.query("SELECT * FROM messages ORDER BY id DESC");
+  
+  let list = result.rows.map(r => `<li>${r.message}</li>`).join("");
 
-  try {
-    await pool.query(
-      "INSERT INTO messages (content) VALUES ($1)",
-      [content]
-    );
-    res.status(201).send("Saved");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error");
-  }
+  res.send(`
+    <h2>Send Message</h2>
+    <form method="POST" action="/send">
+      <input name="message" />
+      <button type="submit">Send</button>
+    </form>
+    <h3>Messages</h3>
+    <ul>${list}</ul>
+  `);
+});
+
+app.post("/send", async (req, res) => {
+  const { message } = req.body;
+  await pool.query("INSERT INTO messages(message) VALUES($1)", [message]);
+  res.redirect("/");
 });
 
 app.listen(3000, () => {
