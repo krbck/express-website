@@ -13,6 +13,43 @@ const pool = new Pool({
   port: 5432,
 });
 
+async function checkDB() {
+  try {
+    console.log("Trying to connect to DB...");
+    const client = await pool.connect();
+    console.log("Connection succeeded!");
+
+    // Hangi database ve schema’da olduğumuzu kontrol
+    const dbRes = await client.query("SELECT current_database() AS db, current_schema AS schema");
+    console.log("Connected to DB:", dbRes.rows[0].db);
+    console.log("Current schema:", dbRes.rows[0].schema);
+
+    // public schema’daki tabloları listele
+    const tableRes = await client.query(`
+      SELECT table_schema, table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+    `);
+    console.log("Tables in public schema:", tableRes.rows.map(r => r.table_name));
+
+    // messages tablosunu test et
+    try {
+      const msgRes = await client.query("SELECT * FROM public.messages LIMIT 1");
+      console.log("Table 'messages' exists. Sample row:", msgRes.rows[0]);
+    } catch (err) {
+      console.error("Table 'messages' does NOT exist or is inaccessible!", err.message);
+    }
+
+    client.release();
+  } catch (err) {
+    console.error("DB connection failed!", err.message);
+  } finally {
+    await pool.end();
+  }
+}
+
+checkDB();
+
 app.get("/", async (req, res) => {
   const result = await pool.query("SELECT * FROM public.messages ORDER BY id DESC");
   
