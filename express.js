@@ -28,7 +28,7 @@ app.get("/", async (req, res) => {
   `);
 });
 
-app.post("/messages", async (req, res) => {
+app.post("/api/messages", async (req, res) => {
   const { message } = req.body;
   await pool.query(
     "INSERT INTO messages(message) VALUES($1)",
