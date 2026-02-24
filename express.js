@@ -25,13 +25,12 @@ async function checkDB() {
 
     const tableRes = await client.query(`
       SELECT table_schema, table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public'
+      FROM information_schema.tables *
     `);
-    console.log("Tables in public schema:", tableRes.rows.map(r => r.table_name));
+    console.log("Tables in schema:", tableRes.rows.map(r => r.table_name));
 
     try {
-      const msgRes = await client.query("SELECT * FROM public.messages LIMIT 1");
+      const msgRes = await client.query("SELECT * FROM messages LIMIT 1");
       console.log("Table 'messages' exists. Sample row:", msgRes.rows[0]);
     } catch (err) {
       console.error("Table 'messages' does NOT exist or is inaccessible!", err.message);
@@ -46,31 +45,26 @@ async function checkDB() {
 
 checkDB();
 
-app.get("/", async (req, res) => {
-  const result = await pool.query("SELECT * FROM public.messages ORDER BY id DESC");
-  
-  let list = result.rows.map(r => `<li>${r.message}</li>`).join("");
-
-  res.send(`
-    <h2>Send Message</h2>
-    <form method="POST" action="/send">
-      <input name="message" />
-      <button type="submit">Send</button>
-    </form>
-    <h3>Messages</h3>
-    <ul>${list}</ul>
-  `);
-});
-
+// Send a message
 app.post("/api/messages", async (req, res) => {
   const { message } = req.body;
-  await pool.query(
-    "INSERT INTO public.messages(message) VALUES($1)",
-    [message]
-  );
+  if (!message || !message.trim()) return res.status(400).json({ error: "Message cannot be empty" });
+
+  await pool.query("INSERT INTO messages(message) VALUES($1)", [message]);
   res.sendStatus(200);
 });
 
-app.listen(3000, () => {
-  console.log("Server running on 3000");
+// Get all messages
+app.get("/api/messages", async (req, res) => {
+  const result = await pool.query("SELECT * FROM messages ORDER BY id DESC");
+  res.json(result.rows);
 });
+
+// Delete a message
+app.delete("/api/messages/:id", async (req, res) => {
+  const { id } = req.params;
+  await pool.query("DELETE FROM messages WHERE id=$1", [id]);
+  res.sendStatus(200);
+});
+
+app.listen(3000, () => console.log("Server running on 3000"));
