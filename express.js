@@ -14,7 +14,7 @@ const pool = new Pool({
 });
 
 app.get("/", async (req, res) => {
-  const result = await pool.query("SELECT * FROM messages ORDER BY id DESC");
+  const result = await pool.query("SELECT * FROM public.messages ORDER BY id DESC");
   
   let list = result.rows.map(r => `<li>${r.message}</li>`).join("");
 
@@ -32,7 +32,7 @@ app.get("/", async (req, res) => {
 app.post("/api/messages", async (req, res) => {
   const { message } = req.body;
   await pool.query(
-    "INSERT INTO messages(message) VALUES($1)",
+    "INSERT INTO public.messages(message) VALUES($1)",
     [message]
   );
   res.sendStatus(200);
