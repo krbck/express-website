@@ -6,6 +6,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // PostgreSQL
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -107,3 +111,4 @@ app.delete("/api/messages/:id", async (req, res) => {
 });
 
 app.listen(3000, () => console.log("Server running on 3000"));
+
