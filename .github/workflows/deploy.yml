@@ -44,7 +44,7 @@ jobs:
 
       - name: Update Image Tag
         run: |
-          cd gitops-config/apps/express-website
+          cd gitops-config/applications/express-website
           sed -i "s/tag:.*/tag: \"${{ steps.tag.outputs.tag }}\"/" values.yaml
 
 
