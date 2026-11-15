@@ -1,0 +1,5 @@
+# Never in the image: env files, the git dir (actions/checkout keeps the job token in
+# .git/config) and host node_modules (npm install builds its own).
+.env*
+node_modules
+.git
